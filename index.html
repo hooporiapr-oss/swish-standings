@@ -97,7 +97,7 @@ function tryEnter(){
   $('gate-err').textContent = 'Checking…';
 
   var url = SUPABASE_URL + '/rest/v1/licenses'
-    + '?select=code,expires_at,active,product'
+    + '?select=code,expires_at,active,product,school_name'
     + '&code=ilike.' + encodeURIComponent(input)
     + '&active=eq.true'
     + '&product=eq.' + PRODUCT;
@@ -121,6 +121,7 @@ function tryEnter(){
 
     sessionStorage.setItem('swish-standings-gate-pass','1');
     sessionStorage.setItem('swish-standings-license', input.toUpperCase());
+    sessionStorage.setItem('swish-standings-school', lic.school_name || '');
     window.location.href = 'swish-standings.html';
   })
   .catch(function(){
