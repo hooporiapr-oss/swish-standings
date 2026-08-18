@@ -165,7 +165,7 @@ body.buzzer-shake{animation:buzzerShake .5s cubic-bezier(.36,.07,.19,.97) 2}
   <button class="box-back-btn" id="refreshBtn" type="button">🔄 Refresh</button>
   <button id="exitBtn" type="button">Exit →</button>
   <div class="box-title">THE <span>STANDINGS</span></div>
-  <div class="box-sub">Swish Basketball · Player vs. Player</div>
+  <div class="box-sub" id="boxSub">Swish Basketball · Player vs. Player</div>
 
   <div style="width:100%;max-width:600px">
     <div class="box-section">
@@ -184,7 +184,8 @@ var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI
 var SB_TABLE='vr_swish_basketball_standings';
 
 function fetchStandings(){
-  var url=SB_URL+'/rest/v1/'+SB_TABLE+'?select=player_name,score,made,attempts,avg_ms,shots&order=score.desc';
+  var school=sessionStorage.getItem('swish-standings-school')||'';
+  var url=SB_URL+'/rest/v1/'+SB_TABLE+'?select=player_name,score,made,attempts,avg_ms,shots&order=score.desc&school_name=eq.'+encodeURIComponent(school);
   return fetch(url,{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}})
     .then(function(r){if(!r.ok)throw new Error('bad response');return r.json()})
     .then(function(rows){
@@ -255,6 +256,8 @@ function renderStandings(){
   });
 }
 
+var schoolName=sessionStorage.getItem('swish-standings-school');
+if(schoolName){document.getElementById('boxSub').textContent=schoolName+' · Player vs. Player';}
 renderStandings();
 document.getElementById('refreshBtn').addEventListener('click', renderStandings);
 document.getElementById('exitBtn').addEventListener('click', function(){
