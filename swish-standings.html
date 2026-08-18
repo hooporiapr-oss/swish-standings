@@ -150,6 +150,12 @@ body.buzzer-shake{animation:buzzerShake .5s cubic-bezier(.36,.07,.19,.97) 2}
   #choices{grid-template-columns:70px 70px 70px;grid-template-rows:62px 62px 62px;gap:6px}
   .choice-btn .arrow-glyph{font-size:1.5rem}
 }
+#exitBtn{
+  position:fixed;top:16px;right:16px;z-index:20;
+  padding:8px 16px;border-radius:999px;border:2px solid rgba(255,255,255,.25);
+  background:rgba(0,0,0,.5);color:#fff;font-size:.78rem;font-weight:900;
+  letter-spacing:.08em;text-transform:uppercase;cursor:pointer;
+}
 </style>
 
 </head>
@@ -157,6 +163,7 @@ body.buzzer-shake{animation:buzzerShake .5s cubic-bezier(.36,.07,.19,.97) 2}
 
 <div id="screen-box" style="display:flex">
   <button class="box-back-btn" id="refreshBtn" type="button">🔄 Refresh</button>
+  <button id="exitBtn" type="button">Exit →</button>
   <div class="box-title">THE <span>STANDINGS</span></div>
   <div class="box-sub">Swish Basketball · Player vs. Player</div>
 
@@ -250,6 +257,10 @@ function renderStandings(){
 
 renderStandings();
 document.getElementById('refreshBtn').addEventListener('click', renderStandings);
+document.getElementById('exitBtn').addEventListener('click', function(){
+  sessionStorage.removeItem('swish-standings-gate-pass');
+  window.location.href = 'index.html';
+});
 // A display board left running for a whole class period or a full
 // day shouldn't need someone standing there clicking Refresh to keep
 // it current. This keeps the board honest on its own.
