@@ -1,274 +1,548 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<script>
-if (sessionStorage.getItem('swish-standings-gate-pass') !== '1') {
-  window.location.replace('index.html');
-}
-</script>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SWISH BASKETBALL — STANDINGS</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PARADISO · License Admin</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{width:100%;height:100%;overflow:hidden;font-family:Arial,sans-serif;color:#fff;background:#000;user-select:none;-webkit-user-select:none;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
-#space{position:fixed;inset:0;background:#000;overflow:hidden}
-#stars{position:fixed;inset:0;pointer-events:none;z-index:0}
-#edge-glow{position:fixed;inset:0;pointer-events:none;z-index:1;display:none}
-#flash{position:fixed;inset:0;pointer-events:none;z-index:10;opacity:0;transition:opacity .1s}
-#flash.buzzer{transition:opacity .35s ease-out}
-body.buzzer-shake{animation:buzzerShake .5s cubic-bezier(.36,.07,.19,.97) 2}
-@keyframes buzzerShake{
-  0%,100%{transform:translate(0,0)}
-  10%{transform:translate(-6px,-4px)}
-  20%{transform:translate(7px,3px)}
-  30%{transform:translate(-8px,4px)}
-  40%{transform:translate(6px,-3px)}
-  50%{transform:translate(-5px,3px)}
-  60%{transform:translate(5px,-4px)}
-  70%{transform:translate(-4px,2px)}
-  80%{transform:translate(4px,-2px)}
-  90%{transform:translate(-2px,1px)}
-}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:#0a0a0f;color:#e8eef5;min-height:100vh;padding:24px}
+  .wrap{max-width:1100px;margin:0 auto}
 
-#hud{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-around;align-items:center;padding:22px 22px 10px;background:linear-gradient(180deg,rgba(0,0,0,.9),transparent)}
-.hud-box{text-align:center}
-.hud-label{font-size:.5rem;color:#7c3aed;font-weight:900;letter-spacing:.14em;text-transform:uppercase;margin-bottom:2px}
-.hud-val{font-size:2rem;font-weight:900;line-height:1}
-#hScore{color:#fff;font-size:2.6rem}#hRound{color:#ffd35a}#hBest{font-size:1.3rem;color:#9fb3c8}
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;flex-wrap:wrap;gap:12px}
+  .brand .kick{font-size:.62rem;font-weight:900;letter-spacing:.34em;text-transform:uppercase;color:#ff1e3c}
+  .brand .name{font-size:1.8rem;font-weight:900;font-style:italic;letter-spacing:.03em;text-transform:uppercase;color:#fff;line-height:1}
+  .brand .sub{font-size:.64rem;font-weight:900;letter-spacing:.22em;text-transform:uppercase;color:#8892a0;margin-top:2px}
+  .signout{padding:8px 16px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:#e8eef5;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer}
 
-#msg{display:none !important}
-#msg.watch{color:#7c3aed}#msg.go{color:#ffd35a}#msg.correct{color:#00D9A5}#msg.wrong{color:#FF1493}
+  /* login */
+  #login{max-width:380px;margin:80px auto 0;background:rgba(255,255,255,.04);border:1px solid rgba(255,30,60,.25);border-radius:14px;padding:32px}
+  #login h2{font-size:.8rem;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:#ff1e3c;text-align:center;margin-bottom:20px}
+  .fld{margin-bottom:14px}
+  .fld label{display:block;font-size:.66rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#8892a0;margin-bottom:6px}
+  .fld input{width:100%;padding:12px 14px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;font-size:1rem}
+  .btn{width:100%;padding:13px;border:none;border-radius:8px;background:linear-gradient(135deg,#ff1e3c,#c8102e);color:#fff;font-weight:900;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;font-size:.9rem}
+  .btn:hover{transform:translateY(-1px);box-shadow:0 6px 16px rgba(255,30,60,.3)}
+  .msg{text-align:center;font-size:.82rem;margin-top:12px;min-height:18px}
+  .msg.bad{color:#ff8888}.msg.ok{color:#00d9a5}
 
-.ripple{position:fixed;border-radius:50%;border:3px solid #7c3aed;transform:translate(-50%,-50%) scale(0);pointer-events:none;z-index:14;animation:rippleOut .5s ease-out forwards}
-@keyframes rippleOut{0%{transform:translate(-50%,-50%) scale(.5);opacity:1}100%{transform:translate(-50%,-50%) scale(2.4);opacity:0}}
-.tap-particle{position:absolute;width:7px;height:7px;border-radius:50%;pointer-events:none;z-index:50}
-@keyframes particleBurst{0%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(var(--tx),var(--ty)) scale(0);opacity:0}}
-@keyframes confettiFall{0%{transform:translateY(-100px) rotate(0deg) scale(1);opacity:1}100%{transform:translateY(100vh) rotate(720deg) scale(0.5);opacity:0}}
-@keyframes courtBorderGlow{
-  0%,100%{
-    border-color:rgba(200,220,230,.28);
-    box-shadow:0 0 60px rgba(200,220,230,.18),inset 0 0 40px rgba(200,220,230,.06),0 20px 60px rgba(0,0,0,.8);
-  }
-  50%{
-    border-color:rgba(210,230,240,.65);
-    box-shadow:0 0 90px rgba(200,220,230,.4),inset 0 0 55px rgba(200,220,230,.16),0 20px 60px rgba(0,0,0,.8);
-  }
-}
+  /* dashboard */
+  #dash{display:none}
+  .prod-tabs{display:flex;gap:8px;margin-bottom:18px}
+  .prod-tab{padding:9px 18px;border-radius:999px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:#8892a0;font-weight:800;font-size:.82rem;cursor:pointer;letter-spacing:.02em}
+  .prod-tab.active{background:rgba(255,30,60,.16);border-color:rgba(255,30,60,.5);color:#fff}
+  #add-product-label,#list-product-label{color:#8892a0;font-weight:700;text-transform:none;letter-spacing:0;font-size:.85rem}
+  .add-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:18px 20px;margin-bottom:22px}
+  .mobile-note{display:none;background:rgba(255,180,80,.08);border:1px solid rgba(255,180,80,.3);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:.8rem;color:#ffb450;line-height:1.5}
+  .mobile-note.show{display:block}
+  .add-title{font-size:.7rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#8892a0;margin-bottom:14px}
+  .add-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+  .af{display:flex;flex-direction:column;gap:5px}
+  .af label{font-size:.6rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#8892a0}
+  .af input{padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.92);color:#222;font-size:.95rem;font-weight:600}
+  .af input#a-code{width:200px;text-transform:uppercase}
+  .af input#a-school{width:220px}
+  .add-btn{padding:11px 20px;border:none;border-radius:8px;background:linear-gradient(135deg,#00d9a5,#00a884);color:#062;font-weight:900;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;font-size:.85rem}
 
-.court{
-  position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:20;
-  display:grid;grid-template-columns:repeat(7,1fr);grid-template-rows:repeat(5,1fr);
-  gap:8px;width:min(92vw,119vh);height:min(65.7vw,85vh);
-  border:2px solid rgba(200,220,230,.28);border-radius:14px;padding:8px;
-  animation:courtBorderGlow 2.8s ease-in-out infinite;
-  background-color:rgba(190,215,225,.05);
-}
-.court-rim-net{position:absolute;inset:0;pointer-events:none;z-index:1;width:100%;height:100%}
-.cell-filler{border-radius:6px;background:rgba(190,215,225,.04);border:1.5px solid rgba(200,220,230,.14)}
-.choice-btn{border:3px solid rgba(200,220,230,.3);background:transparent;border-radius:50%;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .08s;padding:0;width:100%;height:100%;
-  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
-  background:radial-gradient(circle at 35% 32%,#3a2a1a,#241606 85%);
-}
-.choice-btn.lit{
-  border-color:rgba(255,140,0,.9);
-  background:
-    url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cdefs%3E%3CclipPath%20id%3D%22c%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2249%22/%3E%3C/clipPath%3E%3C/defs%3E%3Cg%20clip-path%3D%22url%28%23c%29%22%20fill%3D%22none%22%20stroke%3D%22%23231005%22%20stroke-width%3D%223.4%22%3E%3Cline%20x1%3D%2250%22%20y1%3D%22-4%22%20x2%3D%2250%22%20y2%3D%22104%22/%3E%3Cpath%20d%3D%22M%20-4%2050%20Q%2050%20-4%20104%2050%22/%3E%3Cpath%20d%3D%22M%20-4%2050%20Q%2050%20104%20104%2050%22/%3E%3Cellipse%20cx%3D%2250%22%20cy%3D%2250%22%20rx%3D%2224%22%20ry%3D%2249%22/%3E%3C/g%3E%3C/svg%3E'),
-    radial-gradient(circle at 35% 32%,#ffb35c,#ff8c00 55%,#d9660a 85%);
-  background-size:100% 100%,100% 100%;
-  box-shadow:0 0 40px rgba(255,140,0,.85),0 0 60px rgba(255,140,0,.45);
-}
-.choice-btn:active{transform:scale(.94)}
+  .list-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .list-title{font-size:.7rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#8892a0}
+  .refresh{background:none;border:1px solid rgba(255,255,255,.15);color:#8892a0;border-radius:8px;padding:6px 12px;font-size:.72rem;font-weight:700;cursor:pointer}
 
+  table{width:100%;border-collapse:collapse;background:rgba(255,255,255,.02);border-radius:12px;overflow:hidden}
+  th{text-align:left;font-size:.62rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:#ff8896;padding:12px 14px;background:rgba(255,30,60,.1)}
+  td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.05);font-size:.9rem}
+  tr:hover td{background:rgba(255,255,255,.02)}
+  .code-cell{font-family:'Courier New',monospace;font-weight:900;color:#fff}
+  .pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.66rem;font-weight:900;text-transform:uppercase;letter-spacing:.04em}
+  .pill.active{background:rgba(0,217,165,.18);color:#00d9a5}
+  .pill.inactive{background:rgba(255,107,107,.18);color:#ff8888}
+  .pill.expired{background:rgba(255,180,80,.18);color:#ffb450}
+  .exp-soon{color:#ffb450;font-weight:700}
+  .row-actions{display:flex;gap:6px;flex-wrap:wrap}
+  .mini{padding:5px 10px;border-radius:6px;font-size:.7rem;font-weight:800;cursor:pointer;border:1px solid transparent}
+  .mini.renew{background:rgba(0,140,255,.15);border-color:rgba(0,140,255,.3);color:#4db8ff}
+  .mini.toggle{background:rgba(255,180,80,.15);border-color:rgba(255,180,80,.3);color:#ffb450}
+  .mini.del{background:rgba(255,60,60,.15);border-color:rgba(255,60,60,.3);color:#ff6b6b}
+  .empty{text-align:center;color:#5a6070;padding:30px}
+  .count{font-size:.7rem;color:#8892a0}
 
-#screen-intro{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#140800 0%,#000 70%);z-index:50;overflow-y:auto;overflow-x:hidden;padding:20px 16px 24px;box-sizing:border-box;text-align:center}
-.vrr-sub{font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:#7c3aed;margin-bottom:28px}
-.rule-t{font-size:.9rem;color:#cbd5e1;line-height:1.5;max-width:440px;margin-bottom:26px}
-.name-input{width:100%;max-width:420px;padding:14px;border-radius:14px;border:2px solid rgba(255,107,53,.4);background:rgba(255,255,255,.05);color:#fff;font-family:Arial,sans-serif;font-size:1rem;text-align:center}
-.name-input:focus{outline:none;border-color:#FF6B35;box-shadow:0 0 24px rgba(255,107,53,.35)}
-.standings-row{font-size:.8rem;color:#9fb3c8;padding:10px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:12px;cursor:pointer}
-.standings-row:last-child{border-bottom:none}
-.standings-row:active{background:rgba(124,58,237,.08)}
-.standings-rank{font-weight:900;font-size:1.05rem;color:#7c3aed;min-width:28px}
-.standings-row.rank-1 .standings-rank{color:#ffd35a}
-.standings-row.rank-2 .standings-rank{color:#c4b5fd}
-.standings-row.rank-3 .standings-rank{color:#fb923c}
-.standings-name{flex:1;color:#fff;font-weight:700;text-align:left}
-.standings-pts{color:#00e5ff;font-weight:900;font-size:1rem}
-.standings-bpm{color:#9fb3c8;font-size:.72rem;min-width:64px;text-align:right}
-.rule-t b{color:#fff}
-.big-btn{width:100%;max-width:420px;height:68px;border:none;border-radius:20px;background:linear-gradient(135deg,#FF6B35,#ff8a5c);color:#fff;font-size:1.2rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 40px rgba(255,107,53,.7);margin-bottom:14px}
-.intro-back{position:fixed;top:16px;left:16px;padding:8px 16px;border:2px solid rgba(255,255,255,.25);background:rgba(0,0,0,.5);color:#fff;font-size:.78rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;text-decoration:none;z-index:60}
-.best-line{margin-top:18px;font-size:.85rem;color:#9fb3c8}
-.best-line b{color:#7c3aed}
-
-#screen-end{position:fixed;inset:0;z-index:55;display:none;flex-direction:column;align-items:center;justify-content:center;background:#000;text-align:center;padding:20px}
-
-#screen-box{display:none;position:fixed;inset:0;z-index:200;flex-direction:column;align-items:center;background:radial-gradient(ellipse at center,#140800 0%,#000 70%);padding:20px 16px 24px;overflow-y:auto}
-.box-title{font-size:1.7rem;font-weight:900;font-style:italic;letter-spacing:.06em;text-transform:uppercase;color:#fff;text-shadow:0 0 40px rgba(255,140,0,.8);margin-bottom:2px}
-.box-title span{color:#00e5ff}
-.box-sub{font-size:.65rem;letter-spacing:.24em;text-transform:uppercase;color:#7c3aed;margin-bottom:22px}
-.box-grid{width:100%;max-width:1000px;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
-.box-section{width:100%;margin-bottom:24px}
-.box-section-label{font-size:.65rem;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#ffd35a;margin-bottom:8px;text-align:left;padding-left:4px}
-.box-table{width:100%;border-collapse:collapse;background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.3);border-radius:12px;overflow:hidden}
-.box-table th{background:rgba(124,58,237,.18);color:#a78bfa;font-size:.6rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase;padding:8px 6px;text-align:center;border-bottom:1px solid rgba(124,58,237,.3)}
-.box-table td{padding:12px 6px;text-align:center;font-weight:900;font-size:1.1rem;color:#fff}
-.box-table .box-pts{color:#00e5ff;font-size:1.4rem}
-.box-empty{color:#7fa8c0;font-size:.85rem;padding:24px 8px;font-style:italic}
-.box-back-btn{align-self:flex-start;padding:8px 16px;border:2px solid rgba(255,255,255,.25);background:rgba(0,0,0,.5);color:#fff;font-size:.78rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;cursor:pointer;margin-bottom:20px}
-.box-recent-row{font-size:.75rem;color:#9fb3c8;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;padding:8px 10px;cursor:pointer}
-.box-recent-row:hover{background:rgba(124,58,237,.08)}
-.box-recent-row .expand-hint{color:#7c3aed;font-size:.65rem;text-transform:uppercase;letter-spacing:.06em;margin-left:8px}
-.tap-log{display:flex;flex-wrap:wrap;gap:4px;padding:10px;background:rgba(124,58,237,.05);border:1px solid rgba(124,58,237,.25);border-radius:12px;margin-top:8px}
-.tap-chip{flex:0 0 auto;min-width:44px;padding:4px 6px;border-radius:7px;text-align:center;font-family:Arial,Helvetica,sans-serif;font-size:.62rem;font-weight:900;line-height:1.3}
-.tap-chip.hit{background:rgba(124,58,237,.22);border:1px solid rgba(124,58,237,.5);color:#c4b5fd}
-.tap-chip.miss{background:rgba(255,20,147,.16);border:1px solid rgba(255,20,147,.4);color:#ff8fb8}
-.tap-chip .tap-bpm{display:block;font-size:.68rem}
-.tap-chip .tap-pts{display:block;opacity:.85;font-size:.58rem;margin-top:1px}
-.tap-log-total{width:100%;text-align:center;margin-top:0;padding:8px 14px 14px;border-top:1px solid rgba(124,58,237,.25);font-size:.85rem;font-weight:900;color:#fff}
-.tap-log-total b{color:#00e5ff;font-size:1.1rem}
-.tap-log-empty{color:#7fa8c0;font-size:.75rem;font-style:italic;padding:8px}
-.box-recent-row:last-child{border-bottom:none}
-.box-recent-row b{color:#ffd35a}
-.box-open-btn{width:100%;max-width:420px;height:52px;border:2px solid rgba(0,229,255,.5);background:rgba(0,229,255,.1);border-radius:14px;color:#00e5ff;font-size:.9rem;font-weight:900;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;margin-top:6px}
-
-.final-num{font-size:6rem;font-weight:900;color:#7c3aed;line-height:1;text-shadow:0 0 60px rgba(124,58,237,.9)}
-.final-label{font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;color:#9fb3c8;margin-top:10px}
-.final-bpm-big{font-size:1.8rem;font-weight:900;color:#ffd35a;margin-top:10px}
-.final-acc{margin-top:6px;font-size:1.1rem;color:#ffd35a;font-weight:900}
-.final-misses{margin-top:10px;font-size:1.3rem;font-weight:900;color:#FF1493;text-shadow:0 0 20px rgba(255,20,147,.5)}
-.final-misses.clean{color:#00D9A5;text-shadow:0 0 20px rgba(0,217,165,.5)}
-#screen-end h2{font-size:1.8rem;font-weight:900;margin:24px 0 8px}
-#endSub{font-size:.9rem;color:#9fb3c8;line-height:1.6;max-width:400px}
-.next-player-btn{margin-top:28px;height:64px;padding:0 40px;border:none;border-radius:16px;background:linear-gradient(120deg,#7c3aed,#5b21b6);color:#fff;font-size:1.15rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;box-shadow:0 0 30px rgba(124,58,237,.6)}
-.session-line{margin-top:22px;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:#7fa8c0}
-
-#countdown{position:fixed;inset:0;z-index:56;display:none;align-items:center;justify-content:center;background:#000}
-#bigCount{font-size:8rem;font-weight:900;color:#7c3aed;text-shadow:0 0 60px rgba(124,58,237,.9)}
-@media(max-width:420px){#screen-intro{padding:16px 12px 20px}.big-btn{height:56px;font-size:1rem;margin-bottom:10px}
-  #choices{grid-template-columns:70px 70px 70px;grid-template-rows:62px 62px 62px;gap:6px}
-  .choice-btn .arrow-glyph{font-size:1.5rem}
-}
-#exitBtn{
-  position:fixed;top:16px;right:16px;z-index:20;
-  padding:8px 16px;border-radius:999px;border:2px solid rgba(255,255,255,.25);
-  background:rgba(0,0,0,.5);color:#fff;font-size:.78rem;font-weight:900;
-  letter-spacing:.08em;text-transform:uppercase;cursor:pointer;
-}
+  /* Standings reset — deliberately its own separate, lower-key card
+     from license management above. This used to be a button on every
+     public game screen; moving it here means wiping a shared board
+     now requires a real login, not just a tap a curious player could
+     reach on a shared classroom device. */
+  .standings-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:18px 20px;margin-top:22px}
+  .standings-card.hidden{display:none}
+  .standings-title{font-size:.7rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:#8892a0;margin-bottom:14px}
+  .standings-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+  .standings-row:last-child{border-bottom:none}
+  .standings-game-name{font-size:.92rem;font-weight:700;color:#fff}
+  .standings-reset-btn{padding:8px 16px;border-radius:8px;border:1px solid rgba(255,60,60,.3);background:rgba(255,60,60,.12);color:#ff6b6b;font-size:.75rem;font-weight:800;cursor:pointer}
+  .standings-confirm{display:none;margin-top:10px;padding:14px;border:1px solid rgba(255,30,60,.4);background:rgba(255,30,60,.06);border-radius:10px}
+  .standings-confirm.show{display:block}
+  .standings-confirm-text{font-size:.8rem;color:#ff8fa3;font-weight:700;margin-bottom:10px}
+  .standings-confirm-actions{display:flex;gap:8px}
+  .standings-confirm-actions button{padding:8px 14px;border-radius:8px;font-size:.72rem;font-weight:800;cursor:pointer}
+  .standings-cancel-btn{border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:#fff}
+  .standings-yes-btn{border:none;background:#ff1e3c;color:#fff}
+  .standings-msg{font-size:.72rem;margin-top:8px;min-height:16px}
+  .standings-msg.ok{color:#00d9a5}.standings-msg.bad{color:#ff8888}
 </style>
-
 </head>
 <body>
+<div class="wrap">
 
-<div id="screen-box" style="display:flex">
-  <button class="box-back-btn" id="refreshBtn" type="button">🔄 Refresh</button>
-  <button id="exitBtn" type="button">Exit →</button>
-  <div class="box-title">THE <span>STANDINGS</span></div>
-  <div class="box-sub" id="boxSub">Swish Basketball · Player vs. Player</div>
+  <div class="top">
+    <div class="brand">
+      <div class="kick">⚡ Reactific</div>
+      <div class="name">License Admin</div>
+      <div class="sub">Manage School Access</div>
+    </div>
+    <button class="signout" id="signout-btn" onclick="signOut()" style="display:none">Sign Out</button>
+  </div>
 
-  <div style="width:100%;max-width:600px">
-    <div class="box-section">
-      <div class="box-section-label">Standings — Best Score Per Player</div>
-      <div class="box-table" id="standingsList" style="border-radius:12px"></div>
-      <div class="tap-log" id="standingsTapLog" style="display:none"></div>
+  <!-- LOGIN -->
+  <div id="login">
+    <h2>🔒 Admin Login</h2>
+    <div class="fld"><label>Email</label><input id="l-email" type="email" placeholder="you@email.com" onkeydown="if(event.key==='Enter')login()"></div>
+    <div class="fld"><label>Password</label><input id="l-pass" type="password" placeholder="Password" onkeydown="if(event.key==='Enter')login()"></div>
+    <button class="btn" onclick="login()">Sign In</button>
+    <div class="msg" id="login-msg"></div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dash">
+    <div class="prod-tabs">
+      <button class="prod-tab active" id="tab-hooporia" onclick="switchProduct('hooporia')">🏀 Memory Basketball</button>
+      <button class="prod-tab" id="tab-mobile" onclick="switchProduct('mobile')">📱 Mobile</button>
+      <button class="prod-tab" id="tab-dynamic-basketball" onclick="switchProduct('dynamic-basketball')">🥽 Dynamic Basketball</button>
+      <button class="prod-tab" id="tab-swish-basketball" onclick="switchProduct('swish-basketball')">🎯 Swish Basketball</button>
+      <button class="prod-tab" id="tab-swish-standings" onclick="switchProduct('swish-standings')">🏆 Swish Standings</button>
+    </div>
+
+    <div class="mobile-note" id="mobile-note">⚠️ Mobile codes work differently: a device stays unlocked permanently once it enters a valid code, using local on-device storage rather than a per-visit check. Revoking or deleting a code here blocks it for any <b>new</b> device — it will not retroactively lock out a device that already unlocked with it.</div>
+
+    <div class="add-card">
+      <div class="add-title">➕ Add a License <span id="add-product-label"></span></div>
+      <div class="add-row">
+        <div class="af"><label>Code</label><input id="a-code" placeholder="LINCOLN-PREP-2026" maxlength="40"></div>
+        <div class="af"><label>School Name</label><input id="a-school" placeholder="Lincoln Prep Academy" maxlength="60"></div>
+        <div class="af"><label>Expires</label><input id="a-expires" type="date"></div>
+        <div class="af"><label>Notes (optional)</label><input id="a-notes" placeholder="Paid annual" maxlength="80"></div>
+        <button class="add-btn" onclick="addLicense()">+ Add</button>
+      </div>
+      <div class="msg" id="add-msg"></div>
+    </div>
+
+    <div class="list-head">
+      <div class="list-title">Licensed Schools <span id="list-product-label"></span> <span class="count" id="count"></span></div>
+      <button class="refresh" onclick="loadLicenses()">↻ Refresh</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>Code</th><th>School</th><th>Expires</th><th>Status</th><th>Notes</th><th>Actions</th></tr>
+      </thead>
+      <tbody id="rows"><tr><td colspan="6" class="empty">Loading…</td></tr></tbody>
+    </table>
+
+    <!-- Standings reset — shown for every product, since all of them
+         now have real, shared game standings. -->
+    <div class="standings-card hidden" id="standings-card">
+      <div class="standings-title">🏆 Standings — Reset a Shared Board</div>
+      <div id="standings-list"></div>
     </div>
   </div>
+
 </div>
 
 <script>
-function $(id){return document.getElementById(id)}
+// ══════════════════════════════════════════════════════
+//  This admin panel talks to Supabase directly over fetch(),
+//  the same proven approach the gate pages already use —
+//  deliberately NOT loading the Supabase JS client from a
+//  CDN. That earlier approach meant this page's login button
+//  depended on a third-party script finishing over the network
+//  on every single load; if that ever failed (a connection
+//  hiccup, a blocking extension, a slow CDN moment), the whole
+//  page silently broke with zero explanation. Removing that
+//  dependency makes that entire category of failure structurally
+//  impossible — there's nothing external left to fail to load.
+// ══════════════════════════════════════════════════════
+var SUPABASE_URL = 'https://sdaphocueugzfvjovuxd.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkYXBob2N1ZXVnemZ2am92dXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MjQyMDgsImV4cCI6MjA5OTIwMDIwOH0.pDAzf4P6dD9eNEBlnP95SdF5BI-R84-Rdc0vKzYcn7M';
+// ══════════════════════════════════════════════════════
 
-var SB_URL='https://sdaphocueugzfvjovuxd.supabase.co';
-var SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNkYXBob2N1ZXVnemZ2am92dXhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM2MjQyMDgsImV4cCI6MjA5OTIwMDIwOH0.pDAzf4P6dD9eNEBlnP95SdF5BI-R84-Rdc0vKzYcn7M';
-var SB_TABLE='vr_swish_basketball_standings';
+var $ = function(id){ return document.getElementById(id); };
+var currentProduct = 'hooporia';
+var editingId = null;
+var lastLicenseRows = [];
+var lastLicenseTbody = null;
+var accessToken = null, refreshToken = null;
 
-function fetchStandings(){
-  var school=sessionStorage.getItem('swish-standings-school')||'';
-  var url=SB_URL+'/rest/v1/'+SB_TABLE+'?select=player_name,score,made,attempts,avg_ms,shots&order=score.desc&school_name=eq.'+encodeURIComponent(school);
-  return fetch(url,{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}})
-    .then(function(r){if(!r.ok)throw new Error('bad response');return r.json()})
-    .then(function(rows){
-      var best={};
-      (rows||[]).forEach(function(r){
-        var existing=best[r.player_name];
-        if(!existing||r.score>existing.pts){
-          best[r.player_name]={name:r.player_name,pts:r.score,made:r.made,attempts:r.attempts,ms:r.avg_ms,shots:r.shots||[]};
-        }
-      });
-      return Object.keys(best).map(function(n){return best[n]}).sort(function(a,b){return b.pts-a.pts});
+function saveSession(at, rt){
+  accessToken = at; refreshToken = rt;
+  try{ localStorage.setItem('admin-at', at); localStorage.setItem('admin-rt', rt); }catch(e){}
+}
+function clearSession(){
+  accessToken = null; refreshToken = null;
+  try{ localStorage.removeItem('admin-at'); localStorage.removeItem('admin-rt'); }catch(e){}
+}
+
+function authHeaders(){
+  return {
+    'apikey': SUPABASE_ANON_KEY,
+    'Authorization': 'Bearer ' + (accessToken || SUPABASE_ANON_KEY),
+    'Content-Type': 'application/json'
+  };
+}
+
+// ── auth ──
+async function checkSession(){
+  try{ accessToken = localStorage.getItem('admin-at'); refreshToken = localStorage.getItem('admin-rt'); }catch(e){}
+  if (!accessToken){ showLogin(); return; }
+  // confirm the stored token still actually works before trusting it
+  var ok = await tryRequest(SUPABASE_URL + '/rest/v1/licenses?select=id&limit=1');
+  if (ok) { showDash(); return; }
+  // token may just be expired — try a refresh before giving up
+  if (refreshToken && await doRefresh()) { showDash(); return; }
+  clearSession();
+  showLogin();
+}
+
+async function tryRequest(url){
+  try{
+    var r = await fetch(url, { headers: authHeaders() });
+    return r.ok;
+  }catch(e){ return false; }
+}
+
+async function doRefresh(){
+  try{
+    var r = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=refresh_token', {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken })
     });
+    if (!r.ok) return false;
+    var data = await r.json();
+    if (!data.access_token) return false;
+    saveSession(data.access_token, data.refresh_token);
+    return true;
+  }catch(e){ return false; }
 }
 
-function renderTapLog(container,shots,finalScore){
-  if(!shots||!shots.length){
-    container.innerHTML='<div class="tap-log-empty">No round-by-round detail saved for this game.</div>';
-    return;
-  }
-  var chips=shots.map(function(s){
-    if(s.hit){
-      return '<div class="tap-chip hit"><span class="tap-bpm">ROUND '+s.round+'</span><span class="tap-pts">+'+s.pts+'</span></div>';
-    }
-    return '<div class="tap-chip miss"><span class="tap-bpm">ROUND '+s.round+'</span><span class="tap-pts">MISS</span></div>';
-  }).join('');
-  container.innerHTML=chips+'<div class="tap-log-total">Final Score: <b>'+finalScore+' PTS</b></div>';
-}
+function showLogin(){ $('login').style.display='block'; $('dash').style.display='none'; $('signout-btn').style.display='none'; }
+function showDash(){ $('login').style.display='none'; $('dash').style.display='block'; $('signout-btn').style.display='inline-block'; switchProduct(currentProduct); }
 
-function renderStandings(){
-  var listEl=$('standingsList');
-  var tapLogEl=$('standingsTapLog');
-  tapLogEl.style.display='none';
-  listEl.innerHTML='<div class="box-empty">Loading standings…</div>';
-
-  fetchStandings().then(function(ranked){
-    var openRowName=null;
-    if(!ranked.length){
-      listEl.innerHTML='<div class="box-empty">No players yet — be the first name on the board.</div>';
+window.login = async function(){
+  var email = $('l-email').value.trim();
+  var password = $('l-pass').value;
+  if (!email || !password){ $('login-msg').className='msg bad'; $('login-msg').textContent='Enter your email and password'; return; }
+  $('login-msg').className='msg'; $('login-msg').textContent='Signing in…';
+  try{
+    var r = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: password })
+    });
+    var data = await r.json();
+    if (!r.ok || !data.access_token){
+      $('login-msg').className='msg bad';
+      $('login-msg').textContent = data.error_description || data.msg || 'Invalid email or password';
       return;
     }
-    listEl.innerHTML=ranked.map(function(p,i){
-      var rankClass=i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'';
-      var safeName=p.name.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-      return '<div class="standings-row '+rankClass+'" data-name="'+safeName+'">'
-        +'<span class="standings-rank">'+(i+1)+'</span>'
-        +'<span class="standings-name">'+safeName+'</span>'
-        +'<span class="standings-bpm">'+(p.made>0?p.made+' rounds':'')+'</span>'
-        +'<span class="standings-pts">'+p.pts+'</span>'
-        +'</div>';
-    }).join('');
-    listEl.querySelectorAll('.standings-row').forEach(function(row){
-      row.addEventListener('click',function(){
-        var name=row.dataset.name;
-        if(openRowName===name){
-          tapLogEl.style.display='none';
-          openRowName=null;
-          return;
-        }
-        openRowName=name;
-        var p=ranked.find(function(r){return r.name===name});
-        renderTapLog(tapLogEl,p.shots,p.pts);
-        tapLogEl.style.display='flex';
-        row.insertAdjacentElement('afterend',tapLogEl);
-      });
-    });
-  }).catch(function(){
-    listEl.innerHTML='<div class="box-empty">Couldn\'t load standings right now — try again in a moment.</div>';
-  });
+    saveSession(data.access_token, data.refresh_token);
+    $('login-msg').textContent='';
+    showDash();
+  }catch(e){
+    $('login-msg').className='msg bad';
+    $('login-msg').textContent='Connection problem — please try again';
+  }
+};
+
+window.signOut = async function(){
+  try{ await fetch(SUPABASE_URL + '/auth/v1/logout', { method:'POST', headers: authHeaders() }); }catch(e){}
+  clearSession();
+  showLogin();
+};
+
+window.switchProduct = function(product){
+  currentProduct = product;
+  $('tab-hooporia').className = 'prod-tab' + (product==='hooporia' ? ' active' : '');
+  $('tab-mobile').className = 'prod-tab' + (product==='mobile' ? ' active' : '');
+  $('tab-dynamic-basketball').className = 'prod-tab' + (product==='dynamic-basketball' ? ' active' : '');
+  $('tab-swish-basketball').className = 'prod-tab' + (product==='swish-basketball' ? ' active' : '');
+  $('tab-swish-standings').className = 'prod-tab' + (product==='swish-standings' ? ' active' : '');
+  $('mobile-note').className = 'mobile-note' + (product==='mobile' ? ' show' : '');
+  var label = product==='hooporia' ? '(Memory Basketball)' : product==='mobile' ? '(Mobile)' : product==='swish-basketball' ? '(Swish Basketball)' : product==='swish-standings' ? '(Swish Standings)' : '(Dynamic Basketball)';
+  $('add-product-label').textContent = label;
+  $('list-product-label').textContent = label;
+  loadLicenses();
+  renderStandingsSection(product);
+};
+
+// ── standings reset ──
+// Every game's own standings screen used to carry its own "Reset"
+// button; that's now removed from every game, and this is the only
+// place a shared board can be wiped — behind this page's real login,
+// not a tap any player passing through could reach.
+var STANDINGS_BY_PRODUCT = {
+  'dynamic-basketball': [
+    { name: 'Shoot It. Own It.', table: 'vr_shoot_it_own_it_standings' },
+    { name: 'Make It Count.', table: 'vr_make_it_count_standings' }
+  ],
+  'swish-basketball': [
+    { name: 'Swish Basketball', table: 'vr_swish_basketball_standings' }
+  ],
+  'swish-standings': [
+    { name: 'Swish Basketball', table: 'vr_swish_basketball_standings' }
+  ],
+  'hooporia': [
+    { name: 'Swish', table: 'hooporia_swish_standings' },
+    { name: 'Basketball Recall', table: 'hooporia_basketball_recall_standings' },
+    { name: 'Basketball Reflex', table: 'hooporia_basketball_reflex_standings' },
+    { name: 'Flash', table: 'hooporia_flash_standings' }
+  ],
+  'mobile': [
+    { name: 'The Handle', table: 'ritnome_mobile_handle_standings' }
+  ]
+};
+
+function renderStandingsSection(product){
+  var games = STANDINGS_BY_PRODUCT[product];
+  var card = $('standings-card');
+  if(!games){
+    card.className = 'standings-card hidden';
+    return;
+  }
+  card.className = 'standings-card';
+  $('standings-list').innerHTML = games.map(function(g){
+    var safeId = g.table;
+    return '<div class="standings-row">'
+      + '<span class="standings-game-name">' + g.name + '</span>'
+      + '<button class="standings-reset-btn" id="reset-btn-' + safeId + '" onclick="offerStandingsReset(\'' + safeId + '\')">Reset</button>'
+      + '</div>'
+      + '<div class="standings-confirm" id="reset-confirm-' + safeId + '">'
+      + '  <div class="standings-confirm-text">Clear all standings for ' + g.name + '? Every player\'s score is permanently removed. This can\'t be undone.</div>'
+      + '  <div class="standings-confirm-actions">'
+      + '    <button class="standings-cancel-btn" onclick="cancelStandingsReset(\'' + safeId + '\')">Cancel</button>'
+      + '    <button class="standings-yes-btn" onclick="confirmStandingsReset(\'' + safeId + '\',\'' + g.name.replace(/'/g,"\\'") + '\')">Yes, Reset</button>'
+      + '  </div>'
+      + '  <div class="standings-msg" id="reset-msg-' + safeId + '"></div>'
+      + '</div>';
+  }).join('');
 }
 
-var schoolName=sessionStorage.getItem('swish-standings-school');
-if(schoolName){document.getElementById('boxSub').textContent=schoolName+' · Player vs. Player';}
-renderStandings();
-document.getElementById('refreshBtn').addEventListener('click', renderStandings);
-document.getElementById('exitBtn').addEventListener('click', function(){
-  sessionStorage.removeItem('swish-standings-gate-pass');
-  window.location.href = 'index.html';
-});
-// A display board left running for a whole class period or a full
-// day shouldn't need someone standing there clicking Refresh to keep
-// it current. This keeps the board honest on its own.
-setInterval(renderStandings, 30000);
-</script>
+window.offerStandingsReset = function(table){
+  $('reset-confirm-' + table).className = 'standings-confirm show';
+};
+window.cancelStandingsReset = function(table){
+  $('reset-confirm-' + table).className = 'standings-confirm';
+  $('reset-msg-' + table).textContent = '';
+};
+window.confirmStandingsReset = async function(table, gameName){
+  var msgEl = $('reset-msg-' + table);
+  msgEl.className = 'standings-msg';
+  msgEl.textContent = 'Clearing…';
+  try{
+    var r = await fetch(SUPABASE_URL + '/rest/v1/' + table + '?id=gt.0', {
+      method: 'DELETE',
+      headers: authHeaders()
+    });
+    if(!r.ok){
+      msgEl.className = 'standings-msg bad';
+      msgEl.textContent = 'Something went wrong — please try again';
+      return;
+    }
+    msgEl.className = 'standings-msg ok';
+    msgEl.textContent = gameName + '\'s standings cleared.';
+    setTimeout(function(){
+      $('reset-confirm-' + table).className = 'standings-confirm';
+      msgEl.textContent = '';
+    }, 2000);
+  }catch(e){
+    msgEl.className = 'standings-msg bad';
+    msgEl.textContent = 'Connection problem — please try again';
+  }
+};
 
+// ── licenses ──
+window.loadLicenses = async function(){
+  var tbody = $('rows');
+  tbody.innerHTML = '<tr><td colspan="6" class="empty">Loading…</td></tr>';
+  try{
+    var url = SUPABASE_URL + '/rest/v1/licenses?select=*&product=eq.' + encodeURIComponent(currentProduct);
+    var r = await fetch(url, { headers: authHeaders() });
+    if (!r.ok){
+      var errBody = await r.json().catch(function(){ return {}; });
+      tbody.innerHTML = '<tr><td colspan="6" class="empty">Error: '+esc(errBody.message||r.statusText)+'</td></tr>';
+      return;
+    }
+    var data = await r.json();
+    var rows = (data || []).slice().sort(function(a,b){
+      if (!a.expires_at && !b.expires_at) return 0;
+      if (!a.expires_at) return 1;
+      if (!b.expires_at) return -1;
+      return a.expires_at < b.expires_at ? -1 : 1;
+    });
+    if (!rows.length){ tbody.innerHTML='<tr><td colspan="6" class="empty">No '+esc(currentProduct)+' licenses yet. Add your first school above.</td></tr>'; $('count').textContent=''; return; }
+    $('count').textContent = '('+rows.length+')';
+    renderRows(rows, tbody);
+  }catch(e){
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">Load failed: '+esc(e.message)+'</td></tr>';
+  }
+};
+
+function renderRows(data, tbody){
+  lastLicenseRows = data;
+  lastLicenseTbody = tbody;
+  var today = new Date();
+  tbody.innerHTML = data.map(function(r){
+    var statusPill, expText='';
+    var expired = r.expires_at && new Date(r.expires_at+'T23:59:59') < today;
+    if (!r.active) statusPill = '<span class="pill inactive">Revoked</span>';
+    else if (expired) statusPill = '<span class="pill expired">Expired</span>';
+    else statusPill = '<span class="pill active">Active</span>';
+
+    if (r.expires_at){
+      var days = Math.ceil((new Date(r.expires_at+'T23:59:59') - today)/86400000);
+      if (days < 0) expText = r.expires_at;
+      else if (days <= 30) expText = '<span class="exp-soon">'+r.expires_at+' ('+days+'d)</span>';
+      else expText = r.expires_at;
+    } else expText = '<span style="color:#5a6070">never</span>';
+
+    if (r.id === editingId){
+      return '<tr>'
+        + '<td><input id="edit-code-'+r.id+'" value="'+esc(r.code)+'" style="width:100%"></td>'
+        + '<td><input id="edit-school-'+r.id+'" value="'+esc(r.school_name||'')+'" style="width:100%"></td>'
+        + '<td><input id="edit-expires-'+r.id+'" type="date" value="'+esc(r.expires_at||'')+'" style="width:100%"></td>'
+        + '<td>'+statusPill+'</td>'
+        + '<td><input id="edit-notes-'+r.id+'" value="'+esc(r.notes||'')+'" style="width:100%"></td>'
+        + '<td><div class="row-actions">'
+          + '<button class="mini renew" onclick="saveEdit(\''+r.id+'\')">Save</button>'
+          + '<button class="mini toggle" onclick="cancelEdit()">Cancel</button>'
+        + '</div></td>'
+        + '</tr>';
+    }
+
+    return '<tr>'
+      + '<td class="code-cell">'+esc(r.code)+'</td>'
+      + '<td>'+esc(r.school_name||'')+'</td>'
+      + '<td>'+expText+'</td>'
+      + '<td>'+statusPill+'</td>'
+      + '<td style="color:#8892a0;font-size:.82rem">'+esc(r.notes||'')+'</td>'
+      + '<td><div class="row-actions">'
+        + '<button class="mini toggle" onclick="startEdit(\''+r.id+'\')">Edit</button>'
+        + '<button class="mini renew" onclick="renew(\''+r.id+'\')">+1yr</button>'
+        + '<button class="mini toggle" onclick="toggle(\''+r.id+'\','+(r.active?'false':'true')+')">'+(r.active?'Revoke':'Enable')+'</button>'
+        + '<button class="mini del" onclick="del(\''+r.id+'\',\''+esc(r.code)+'\')">Delete</button>'
+      + '</div></td>'
+      + '</tr>';
+  }).join('');
+}
+
+window.addLicense = async function(){
+  var code = $('a-code').value.trim().toUpperCase();
+  var school = $('a-school').value.trim();
+  var expires = $('a-expires').value || null;
+  var notes = $('a-notes').value.trim() || null;
+  if (!code){ setAddMsg('Enter a code','bad'); return; }
+  if (!school){ setAddMsg('Enter a school name','bad'); return; }
+  try{
+    var r = await fetch(SUPABASE_URL + '/rest/v1/licenses', {
+      method: 'POST',
+      headers: Object.assign({}, authHeaders(), { 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ code: code, school_name: school, expires_at: expires, notes: notes, active: true, product: currentProduct })
+    });
+    if (!r.ok){
+      var errBody = await r.json().catch(function(){ return {}; });
+      setAddMsg(errBody.code==='23505' ? 'That code already exists' : (errBody.message || 'Could not add license'), 'bad');
+      return;
+    }
+    $('a-code').value=''; $('a-school').value=''; $('a-expires').value=''; $('a-notes').value='';
+    setAddMsg('✓ License added to '+currentProduct,'ok');
+    loadLicenses();
+  }catch(e){
+    setAddMsg('Connection problem — please try again','bad');
+  }
+};
+function setAddMsg(m,c){ $('add-msg').className='msg '+c; $('add-msg').textContent=m; setTimeout(function(){ if($('add-msg').textContent===m) $('add-msg').textContent=''; }, 4000); }
+
+window.startEdit = function(id){
+  editingId = id;
+  renderRows(lastLicenseRows, lastLicenseTbody);
+};
+
+window.cancelEdit = function(){
+  editingId = null;
+  renderRows(lastLicenseRows, lastLicenseTbody);
+};
+
+window.saveEdit = async function(id){
+  var code = $('edit-code-'+id).value.trim().toUpperCase();
+  var school = $('edit-school-'+id).value.trim();
+  var expires = $('edit-expires-'+id).value || null;
+  var notes = $('edit-notes-'+id).value.trim() || null;
+  if (!code){ alert('Enter a code'); return; }
+  if (!school){ alert('Enter a school name'); return; }
+  try{
+    var r = await fetch(SUPABASE_URL + '/rest/v1/licenses?id=eq.' + encodeURIComponent(id), {
+      method: 'PATCH',
+      headers: Object.assign({}, authHeaders(), { 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ code: code, school_name: school, expires_at: expires, notes: notes })
+    });
+    if (!r.ok){
+      var errBody = await r.json().catch(function(){ return {}; });
+      alert(errBody.code==='23505' ? 'That code already exists' : (errBody.message || 'Error saving changes'));
+      return;
+    }
+    editingId = null;
+    loadLicenses();
+  }catch(e){ alert('Connection problem — please try again'); }
+};
+
+window.renew = async function(id){
+  var d = new Date(); d.setFullYear(d.getFullYear()+1);
+  var newDate = d.toISOString().slice(0,10);
+  try{
+    var r = await fetch(SUPABASE_URL + '/rest/v1/licenses?id=eq.' + encodeURIComponent(id), {
+      method: 'PATCH',
+      headers: Object.assign({}, authHeaders(), { 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ expires_at: newDate, active: true })
+    });
+    if (!r.ok){ alert('Error renewing license'); return; }
+    loadLicenses();
+  }catch(e){ alert('Connection problem — please try again'); }
+};
+
+window.toggle = async function(id, makeActive){
+  try{
+    var r = await fetch(SUPABASE_URL + '/rest/v1/licenses?id=eq.' + encodeURIComponent(id), {
+      method: 'PATCH',
+      headers: Object.assign({}, authHeaders(), { 'Prefer': 'return=minimal' }),
+      body: JSON.stringify({ active: makeActive })
+    });
+    if (!r.ok){ alert('Error updating license'); return; }
+    loadLicenses();
+  }catch(e){ alert('Connection problem — please try again'); }
+};
+
+window.del = async function(id, code){
+  if (!confirm('Delete license "'+code+'"? This permanently removes it and locks out that school.')) return;
+  try{
+    var r = await fetch(SUPABASE_URL + '/rest/v1/licenses?id=eq.' + encodeURIComponent(id), {
+      method: 'DELETE',
+      headers: authHeaders()
+    });
+    if (!r.ok){ alert('Error deleting license'); return; }
+    loadLicenses();
+  }catch(e){ alert('Connection problem — please try again'); }
+};
+
+function esc(s){ return String(s).replace(/[&<>"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]}); }
+
+checkSession();
+</script>
 </body>
 </html>
