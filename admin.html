@@ -119,6 +119,7 @@
       <button class="prod-tab" id="tab-dynamic-basketball" onclick="switchProduct('dynamic-basketball')">🥽 Dynamic Basketball</button>
       <button class="prod-tab" id="tab-swish-basketball" onclick="switchProduct('swish-basketball')">🎯 Swish Basketball</button>
       <button class="prod-tab" id="tab-swish-standings" onclick="switchProduct('swish-standings')">🏆 Swish Standings</button>
+      <button class="prod-tab" id="tab-dynamic-memory" onclick="switchProduct('dynamic-memory')">🧠 Dynamic Memory</button>
     </div>
 
     <div class="mobile-note" id="mobile-note">⚠️ Mobile codes work differently: a device stays unlocked permanently once it enters a valid code, using local on-device storage rather than a per-visit check. Revoking or deleting a code here blocks it for any <b>new</b> device — it will not retroactively lock out a device that already unlocked with it.</div>
@@ -276,8 +277,9 @@ window.switchProduct = function(product){
   $('tab-dynamic-basketball').className = 'prod-tab' + (product==='dynamic-basketball' ? ' active' : '');
   $('tab-swish-basketball').className = 'prod-tab' + (product==='swish-basketball' ? ' active' : '');
   $('tab-swish-standings').className = 'prod-tab' + (product==='swish-standings' ? ' active' : '');
+  $('tab-dynamic-memory').className = 'prod-tab' + (product==='dynamic-memory' ? ' active' : '');
   $('mobile-note').className = 'mobile-note' + (product==='mobile' ? ' show' : '');
-  var label = product==='hooporia' ? '(Memory Basketball)' : product==='mobile' ? '(Mobile)' : product==='swish-basketball' ? '(Swish Basketball)' : product==='swish-standings' ? '(Swish Standings)' : product==='hooporia-standings' ? '(Memory Basketball Standings)' : '(Dynamic Basketball)';
+  var label = product==='hooporia' ? '(Memory Basketball)' : product==='mobile' ? '(Mobile)' : product==='swish-basketball' ? '(Swish Basketball)' : product==='swish-standings' ? '(Swish Standings)' : product==='hooporia-standings' ? '(Memory Basketball Standings)' : product==='dynamic-memory' ? '(Dynamic Memory)' : '(Dynamic Basketball)';
   $('add-product-label').textContent = label;
   $('list-product-label').textContent = label;
   loadLicenses();
@@ -313,6 +315,9 @@ var STANDINGS_BY_PRODUCT = {
   ],
   'swish-standings': [
     { name: 'Swish Basketball', table: 'vr_swish_basketball_standings' }
+  ],
+  'dynamic-memory': [
+    { name: 'Dynamic Memory', table: 'dynamic_memory_standings' }
   ],
   'mobile': [
     { name: 'The Handle', table: 'ritnome_mobile_handle_standings' }
