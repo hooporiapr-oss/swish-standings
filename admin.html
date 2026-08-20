@@ -116,7 +116,6 @@
       <button class="prod-tab active" id="tab-hooporia" onclick="switchProduct('hooporia')">🏀 Memory Basketball</button>
       <button class="prod-tab" id="tab-hooporia-standings" onclick="switchProduct('hooporia-standings')">📊 Memory Basketball Standings</button>
       <button class="prod-tab" id="tab-mobile" onclick="switchProduct('mobile')">📱 Mobile</button>
-      <button class="prod-tab" id="tab-dynamic-basketball" onclick="switchProduct('dynamic-basketball')">🥽 Dynamic Basketball</button>
       <button class="prod-tab" id="tab-swish-basketball" onclick="switchProduct('swish-basketball')">🎯 Swish Basketball</button>
       <button class="prod-tab" id="tab-swish-standings" onclick="switchProduct('swish-standings')">🏆 Swish Standings</button>
       <button class="prod-tab" id="tab-dynamic-memory" onclick="switchProduct('dynamic-memory')">🧠 Dynamic Memory</button>
@@ -275,13 +274,12 @@ window.switchProduct = function(product){
   $('tab-hooporia').className = 'prod-tab' + (product==='hooporia' ? ' active' : '');
   $('tab-hooporia-standings').className = 'prod-tab' + (product==='hooporia-standings' ? ' active' : '');
   $('tab-mobile').className = 'prod-tab' + (product==='mobile' ? ' active' : '');
-  $('tab-dynamic-basketball').className = 'prod-tab' + (product==='dynamic-basketball' ? ' active' : '');
   $('tab-swish-basketball').className = 'prod-tab' + (product==='swish-basketball' ? ' active' : '');
   $('tab-swish-standings').className = 'prod-tab' + (product==='swish-standings' ? ' active' : '');
   $('tab-dynamic-memory').className = 'prod-tab' + (product==='dynamic-memory' ? ' active' : '');
   $('tab-dynamic-memory-standings').className = 'prod-tab' + (product==='dynamic-memory-standings' ? ' active' : '');
   $('mobile-note').className = 'mobile-note' + (product==='mobile' ? ' show' : '');
-  var label = product==='hooporia' ? '(Memory Basketball)' : product==='mobile' ? '(Mobile)' : product==='swish-basketball' ? '(Swish Basketball)' : product==='swish-standings' ? '(Swish Standings)' : product==='hooporia-standings' ? '(Memory Basketball Standings)' : product==='dynamic-memory' ? '(Dynamic Memory)' : product==='dynamic-memory-standings' ? '(Dynamic Memory Standings)' : '(Dynamic Basketball)';
+  var label = product==='hooporia' ? '(Memory Basketball)' : product==='mobile' ? '(Mobile)' : product==='swish-basketball' ? '(Swish Basketball)' : product==='swish-standings' ? '(Swish Standings)' : product==='hooporia-standings' ? '(Memory Basketball Standings)' : product==='dynamic-memory' ? '(Dynamic Memory)' : product==='dynamic-memory-standings' ? '(Dynamic Memory Standings)' : '';
   $('add-product-label').textContent = label;
   $('list-product-label').textContent = label;
   loadLicenses();
@@ -307,10 +305,6 @@ var STANDINGS_BY_PRODUCT = {
     { name: 'Basketball Reflex', table: 'hooporia_basketball_reflex_standings' },
     { name: 'Basketball Replay', table: 'hooporia_basketball_replay_standings' },
     { name: 'Basketball Recognition', table: 'hooporia_basketball_recognition_standings' }
-  ],
-  'dynamic-basketball': [
-    { name: 'Shoot It. Own It.', table: 'vr_shoot_it_own_it_standings' },
-    { name: 'Make It Count.', table: 'vr_make_it_count_standings' }
   ],
   'swish-basketball': [
     { name: 'Swish Basketball', table: 'vr_swish_basketball_standings' }
